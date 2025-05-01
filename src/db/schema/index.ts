@@ -1,3 +1,3 @@
-export { users } from './users'
-export { roles } from './roles'
+export { usersTable, usersRelations } from './users'
+export { rolesTable } from './roles'
 export { groups } from './groups'

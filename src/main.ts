@@ -1,9 +1,15 @@
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
+import { ConfigService } from '@nestjs/config'
+import { IServerConfig } from './config'
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule)
-	console.log(process.env.API_PORT)
-	await app.listen(process.env.PORT ?? 3000)
+
+	app.setGlobalPrefix('api', { exclude: ['auth/login', 'auth/signin'] })
+
+	const configService = app.get(ConfigService)
+	const serverConfig = configService.get<IServerConfig>('server')
+	await app.listen(serverConfig?.port ?? 3000)
 }
 void bootstrap()

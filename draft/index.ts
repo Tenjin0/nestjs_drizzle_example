@@ -1,7 +1,7 @@
 import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { Client } from 'pg'
 import * as schema from '../src/db/schema'
-import configuration from '../src/config'
+import { rawConfig } from '../src/config/raw.config'
 import { UserService } from '../src/user/user.service'
 import { ConfigService } from '@nestjs/config'
 if (!process.env.NODE_ENV) {
@@ -14,8 +14,7 @@ require('dotenv').config({
 })
 const configService = {
 	get: (header) => {
-		const config = configuration(schema)()
-		console.log(config)
+		const config = rawConfig(schema)
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		return config[header]
 	},
@@ -33,7 +32,6 @@ async function seedusers(db) {
 	}
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 	const service = new UserService(db, configService as unknown as ConfigService)
-	console.log(' je passe par ici')
 	return service.create(user)
 }
 async function seedRoles(db) {
@@ -52,7 +50,7 @@ async function seedRoles(db) {
 			name: 'GUEST',
 		},
 	]
-	await db.insert(schema.roles).values(roles)
+	await db.insert(schema.rolesTable).values(roles)
 }
 
 const init = async () => {
@@ -72,6 +70,8 @@ void init().then(async (db) => {
 	try {
 		await seedRoles(db)
 		await seedusers(db)
+
+		console.log(db.query.usersTable)
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 		db['client'].end()
 	} catch (err) {

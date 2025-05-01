@@ -13,12 +13,14 @@ export const DRIZZLE = Symbol('drizzle-connection')
 			provide: DRIZZLE,
 			inject: [ConfigService],
 			useFactory: (configService: ConfigService) => {
-				const dbURL = configService.get<IDBConfig>('db')?.url
+				const dbConfig = configService.get<IDBConfig>('db')
+				console.log('dbConfig', dbConfig)
 				const pool = new Pool({
-					connectionString: dbURL,
-					ssl: true,
+					connectionString: dbConfig?.url,
+					ssl: dbConfig?.ssl,
 				})
-				const drizzleConfig = configService.get<IDBConfig>('db')?.drizzle as DrizzleConfig
+				const drizzleConfig = configService.get('drizzle') as DrizzleConfig
+				console.log('drizzle', drizzleConfig)
 				return drizzle(pool, { ...drizzleConfig })
 			},
 		},

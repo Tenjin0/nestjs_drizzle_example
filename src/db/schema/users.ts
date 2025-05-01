@@ -1,28 +1,35 @@
-import { relations } from 'drizzle-orm'
+import { InferSelectModel, relations } from 'drizzle-orm'
 import * as t from 'drizzle-orm/pg-core'
 
-import { roles } from './roles'
+import { rolesTable, TRole } from './roles'
 import { groups } from './groups'
 
-export const users = t.pgTable('users', {
+export const usersTable = t.pgTable('users', {
 	id: t.integer('id').primaryKey().generatedAlwaysAsIdentity(),
 	name: t.varchar('name', { length: 255 }).notNull(),
 	email: t.varchar('email', { length: 255 }).notNull().unique(),
 	password: t.varchar('password', { length: 255 }),
-	idRole: t.integer('id_role').references(() => roles.id),
+	idRole: t
+		.integer('id_role')
+		.notNull()
+		.references(() => rolesTable.id),
 	idGroup: t.integer('id_group').references(() => groups.id),
 	createdAt: t.timestamp('created_at').notNull().defaultNow(),
 	updatedAt: t.timestamp('updated_at').notNull().defaultNow(),
 	deletedAt: t.timestamp('deleted_at'),
 })
 
-export const usersRelations = relations(users, ({ one }) => ({
-	role: one(roles, {
-		fields: [users.idRole],
-		references: [roles.id],
+export const usersRelations = relations(usersTable, ({ one }) => ({
+	role: one(rolesTable, {
+		fields: [usersTable.idRole],
+		references: [rolesTable.id],
 	}),
 	group: one(groups, {
-		fields: [users.idGroup],
+		fields: [usersTable.idGroup],
 		references: [groups.id],
 	}),
 }))
+
+export type TUser = InferSelectModel<typeof usersTable> & {
+	role: TRole
+}

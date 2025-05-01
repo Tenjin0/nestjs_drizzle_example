@@ -1,4 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
+import { eq } from 'drizzle-orm'
+
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { DRIZZLE } from '../db/db.module'
@@ -7,7 +9,7 @@ import { generate, GenerateOptions } from 'generate-password'
 import { ConfigService } from '@nestjs/config'
 import { IHashConfig, IPasswordConfig } from '../config'
 import { hashPassword } from '../helpers/functions/hash_password'
-import { users } from '../db/schema'
+import { usersTable } from '../db/schema'
 
 @Injectable()
 export class UserService {
@@ -23,13 +25,43 @@ export class UserService {
 			createUserDto.password = password
 		}
 		const salt: number = this.configService.get<IHashConfig>('hash')?.salt as number
-		console.log(this.configService.get<IHashConfig>('hash'), salt)
 		createUserDto.password = await hashPassword(createUserDto.password, salt)
-		return this.db.insert(users).values(createUserDto)
+		return this.db.insert(usersTable).values(createUserDto)
+	}
+
+	findByEmail(email: string) {
+		return this.db.query.usersTable
+			.findMany({
+				columns: {
+					id: true,
+					email: true,
+					deletedAt: true,
+					password: true,
+				},
+				with: {
+					role: {
+						columns: {
+							id: true,
+							name: true,
+						},
+					},
+				},
+				limit: 1,
+				where: eq(usersTable.email, email),
+			})
+			.then((users) => {
+				if (users.length === 0) {
+					return null
+				}
+				if (users.length > 0) {
+					return users[0]
+				}
+			})
+		// return this.db.select().from(users).where(eq(users.email, email))
 	}
 
 	findAll() {
-		return `This action returns all user`
+		return this.db.query.usersTable.findMany()
 	}
 
 	findOne(id: number) {

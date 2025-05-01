@@ -1,7 +1,9 @@
 import { DrizzleConfig } from 'drizzle-orm/utils'
+import { Algorithm } from 'jsonwebtoken'
+// import { rawConfig } from './raw.config'
 export interface IDBConfig {
 	url: string
-	drizzle: DrizzleConfig
+	ssl: boolean
 }
 export interface IServerConfig {
 	port: number
@@ -16,36 +18,24 @@ export interface IPasswordConfig {
 export interface IHashConfig {
 	salt: number
 }
+
+export interface IJWTConfig {
+	PUBLIC_KEY: string
+	PRIVATE_KEY: string
+	algorithm: Algorithm[]
+	expire_in: string
+}
 export interface IConfig {
 	db: IDBConfig
+	drizzle: DrizzleConfig
 	server: IServerConfig
 	password: IPasswordConfig
 	hash: IHashConfig
+	jwt: IJWTConfig
 }
 
-export default (schema) => {
-	return () => {
-		const configuration: IConfig = {
-			db: {
-				url: process.env.DB_URL as string,
-				drizzle: {
-					logger: true,
-
-					schema: schema,
-				},
-			},
-			server: {
-				port: parseInt(process.env.API_PORT as string, 10) || 3100,
-			},
-			password: {
-				MIN_LENGTH: 10,
-				MIN_DIGIT: 2,
-				MIN_UPPERCASE: 2,
-			},
-			hash: {
-				salt: 10,
-			},
-		}
-		return configuration
-	}
-}
+// export default (schema) => {
+// 	return () => {
+// 		return rawConfig(schema)
+// 	}
+// }

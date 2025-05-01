@@ -29,6 +29,20 @@
       "when": 1745875110494,
       "tag": "0003_create_permissions",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1746029838113,
+      "tag": "0004_user_id_role_notnull",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1746045523692,
+      "tag": "0005_role_name_required",
+      "breakpoints": true
     }
   ]
 }
