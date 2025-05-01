@@ -8,7 +8,7 @@ import { DrizzleDB } from '../db/types/drizzle'
 import { generate, GenerateOptions } from 'generate-password'
 import { ConfigService } from '@nestjs/config'
 import { IHashConfig, IPasswordConfig } from '../config'
-import { hashPassword } from '../helpers/functions/hash_password'
+import { hashPassword } from '../common/functions/hash_password'
 import { usersTable } from '../db/schema'
 
 @Injectable()

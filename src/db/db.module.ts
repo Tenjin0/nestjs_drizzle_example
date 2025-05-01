@@ -14,13 +14,11 @@ export const DRIZZLE = Symbol('drizzle-connection')
 			inject: [ConfigService],
 			useFactory: (configService: ConfigService) => {
 				const dbConfig = configService.get<IDBConfig>('db')
-				console.log('dbConfig', dbConfig)
 				const pool = new Pool({
 					connectionString: dbConfig?.url,
 					ssl: dbConfig?.ssl,
 				})
 				const drizzleConfig = configService.get('drizzle') as DrizzleConfig
-				console.log('drizzle', drizzleConfig)
 				return drizzle(pool, { ...drizzleConfig })
 			},
 		},

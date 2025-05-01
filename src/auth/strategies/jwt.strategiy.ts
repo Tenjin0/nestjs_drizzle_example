@@ -10,9 +10,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 		@Inject(UserService)
 		private userService: UserService,
 		@Inject(JwtConfig.KEY)
-		private jwtConfig: ConfigType<typeof JwtConfig>,
+		jwtConfig: ConfigType<typeof JwtConfig>,
 	) {
-		console.log(jwtConfig)
 		super({
 			jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
 			ignoreExpiration: false,
@@ -21,9 +20,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 		})
 	}
 	async validate(payload: any) {
-		console.log('validate: jwt', payload)
-		const user = await this.userService.findByEmail(payload.email)
+		const { email } = payload
 		console.log('validate', payload)
+		const user = await this.userService.findByEmail(email)
 		return {
 			id: user?.id,
 			email: user?.email,

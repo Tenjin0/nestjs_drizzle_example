@@ -15,7 +15,6 @@ export class BasicAuthGuard extends AuthGuard('basic') implements CanActivate {
 			throw new BadRequestException('Missing authorization in headers request')
 		}
 		const authorization: string = request.headers.authorization
-		console.log(authorization)
 		if (!authorization.startsWith('Basic')) {
 			throw new BadRequestException('Missing Basic prefix in authorization header')
 		}
@@ -24,7 +23,6 @@ export class BasicAuthGuard extends AuthGuard('basic') implements CanActivate {
 			throw new BadRequestException('Missing token after Basic in header.authorization')
 		}
 		const token = Buffer.from(authorizationSplit[1], 'base64').toString()
-		console.log(token)
 		const creditentials = token.split(':')
 		if (creditentials.length < 2) {
 			throw new BadRequestException('Invalid creditential in header.authorization')
@@ -38,7 +36,5 @@ export class BasicAuthGuard extends AuthGuard('basic') implements CanActivate {
 		return true
 	}
 
-	validate() {
-		console.log('validate')
-	}
+	validate() {}
 }

@@ -7,8 +7,6 @@ import { TUser } from '../db/schema/users'
 import { JwtSignOptions } from '@nestjs/jwt'
 import JwtConfig from '../config/jwt.config'
 import { ConfigService, ConfigType } from '@nestjs/config'
-import { IJWTConfig } from '../config'
-// import { TUser } from '../db/schema/users'
 
 @Injectable()
 export class AuthService {
@@ -41,7 +39,6 @@ export class AuthService {
 	}
 
 	generateToken(user: TUser) {
-		console.log("generateToken", user)
 		const payload: IAuthJwtPayload = {
 			sub: user.id,
 			email: user.email,

@@ -15,7 +15,6 @@ require('dotenv').config({
 const configService = {
 	get: (header) => {
 		const config = configuration(schema)()
-		console.log(config)
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		return config[header]
 	},
@@ -31,7 +30,7 @@ async function seedusers(db) {
 		password: process.env.password ?? 'toto',
 		idRole: 1,
 	}
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+
 	const service = new UserService(db, configService as unknown as ConfigService)
 	return service.create(user)
 }
@@ -55,8 +54,6 @@ async function seedRoles(db) {
 }
 
 const init = async () => {
-	console.log(process.env.DB_URL)
-
 	const client = new Client({
 		connectionString: process.env.DB_URL,
 		ssl: process.env.NODE_ENV === 'production',
@@ -71,7 +68,7 @@ void init().then(async (db) => {
 	try {
 		await seedRoles(db)
 		await seedusers(db)
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		db['client'].end()
 	} catch (err) {
 		console.error(err)
