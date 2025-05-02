@@ -16,6 +16,9 @@ export class RolesGuard implements CanActivate {
 		])
 
 		console.log('role guard', requiredRoles)
+		if (!requiredRoles) {
+			return true
+		}
 		const user = context.switchToHttp().getRequest().user as IAuthJwtPayload
 		console.log(user)
 
