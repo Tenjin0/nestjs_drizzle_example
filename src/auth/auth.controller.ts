@@ -11,7 +11,6 @@ import RefreshJwtConfig from '../config/refresh_jwt.config'
 import { JwtSignOptions } from '@nestjs/jwt'
 import { UserService } from '../user/user.service'
 
-@PublicDecorator()
 @Controller('auth')
 export class AuthController {
 	constructor(
@@ -65,5 +64,12 @@ export class AuthController {
 		return {
 			access_token: token,
 		}
+	}
+
+	@HttpCode(HttpStatus.OK)
+	@Post('signout')
+	async signOut(@Request() req) {
+		console.log(req.user)
+		await this.userService.update(req.user?.sub, { tokenID: null })
 	}
 }

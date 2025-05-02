@@ -13,8 +13,8 @@ import { usersTable } from '../db/schema'
 @Injectable()
 export class UserService {
 	constructor(
-		@Inject(DRIZZLE) private db: DrizzleDB,
 		@Inject(ConfigService) private configService: ConfigService,
+		@Inject(DRIZZLE) private db: DrizzleDB,
 	) {}
 
 	hashingPassword(password) {
@@ -34,7 +34,6 @@ export class UserService {
 		createUserDto.password = await this.hashingPassword(createUserDto.password)
 		return this.db.insert(usersTable).values(createUserDto)
 	}
-
 
 	findByEmail(email: string) {
 		return this.db.query.usersTable
@@ -75,7 +74,21 @@ export class UserService {
 		return this.db.query.usersTable
 			.findMany({
 				limit: 1,
+				columns: {
+					id: true,
+					email: true,
+					tokenID: true,
+					deletedAt: true,
+				},
 				where: eq(usersTable.id, id),
+				with: {
+					role: {
+						columns: {
+							id: true,
+							name: true,
+						},
+					},
+				},
 			})
 			.then((users) => {
 				if (users.length === 0) {

@@ -21,7 +21,7 @@ async function seedusers(db) {
 		idRole: 1,
 	}
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-	const service = new UserService(db, configService as unknown as ConfigService)
+	const service = new UserService(configService as unknown as ConfigService, db)
 	return service.create(user)
 }
 async function seedRoles(db) {

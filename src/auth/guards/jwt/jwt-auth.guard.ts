@@ -1,20 +1,56 @@
-import { ExecutionContext, Injectable } from '@nestjs/common'
+import { BadRequestException, ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { AuthGuard } from '@nestjs/passport'
 import { Observable } from 'rxjs'
-
+import * as jwt from 'jsonwebtoken'
+import { IJWTConfig } from '../../../config'
+import JwtConfig from '../../../config/jwt.config'
+import { ConfigType } from '@nestjs/config'
+import { JwtStrategy } from '../../strategies/jwt.strategy'
 export const ISPUBLIC = 'IS_PUBLIC'
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
-	constructor(private reflector: Reflector) {
+	constructor(
+		private reflector: Reflector,
+		@Inject(JwtConfig.KEY)
+		private jwtConfig: ConfigType<typeof JwtConfig>,
+		@Inject(JwtStrategy)
+		private jwtStragegy: JwtStrategy,
+	) {
 		super()
 	}
-	canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
+	async canActivate(context: ExecutionContext): Promise<boolean>  {
 		const isPublic = this.reflector.getAllAndOverride<boolean>(ISPUBLIC, [context.getHandler(), context.getClass()])
 		console.log('jwt', isPublic)
 		if (isPublic) return true // if not public it will not authorize request header without jwt token
-		return super.canActivate(context)
+		const request = context.switchToHttp().getRequest()
+
+		const token = this.getToken(request)
+		console.log(token)
+		try {
+			const decoded = jwt.verify(token, this.jwtConfig.PRIVATE_KEY, { algorithms: [this.jwtConfig.algorithm] })
+			request.user = decoded
+			console.log(request.user)
+			console.log(decoded)
+			await this.jwtStragegy.validate(decoded)
+		}
+		catch(err) {
+			console.error(err)
+			throw new UnauthorizedException('Invalid access token')
+		}
+		return true
 	}
 
+	private getToken(request: any) {
+		if (!request.headers) {
+			throw new BadRequestException('Missing headers in request 0_o')
+		}
+		// console.log(request.headers)
+		if (!request.headers?.authorization) {
+			throw new BadRequestException('Missing authorization in headers request')
+		}
+		const [, token] = request.headers.authorization.split(' ') ?? []
+		return token as string
+	}
 
 }

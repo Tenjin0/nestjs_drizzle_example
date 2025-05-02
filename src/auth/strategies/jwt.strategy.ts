@@ -8,12 +8,11 @@ import { IAuthJwtPayload } from '../types/jwt_payload'
 
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 	constructor(
-		@Inject(UserService)
-		private userService: UserService,
 		@Inject(JwtConfig.KEY)
 		jwtConfig: ConfigType<typeof JwtConfig>,
+		@Inject(UserService)
+		private userService: UserService,
 	) {
-		console.log(jwtConfig)
 		super({
 			jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
 			ignoreExpiration: false,
@@ -22,11 +21,19 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 		})
 	}
 	async validate(payload: any) {
-		const { email, type } = payload as IAuthJwtPayload
-		if (type !== 'refresh') {
+		const { type, sub: idUser, token_id: tokenID } = payload as IAuthJwtPayload
+		console.log('jwt, validate')
+		if (type !== 'access') {
 			throw new UnauthorizedException('Wrong token')
 		}
-		const user = await this.userService.findByEmail(email)
+		const user = await this.userService.findOne(idUser)
+		if (!user?.tokenID) {
+			throw new UnauthorizedException('Token no longer valid')
+		}
+		console.log(tokenID, user?.tokenID)
+		if (tokenID !== user?.tokenID) {
+			throw new UnauthorizedException('Invalid token')
+		}
 		return {
 			id: user?.id,
 			email: user?.email,

@@ -6,23 +6,23 @@ import { DrizzleConfig } from 'drizzle-orm/utils'
 
 import { IDBConfig } from '../config'
 
-export const DRIZZLE = Symbol('drizzle-connection')
+export const DRIZZLE = 'drizzle-connection'
+
+export const DrizzleProvider = {
+	provide: DRIZZLE,
+	inject: [ConfigService],
+	useFactory: (configService: ConfigService) => {
+		const dbConfig = configService.get<IDBConfig>('db')
+		const pool = new Pool({
+			connectionString: dbConfig?.url,
+			ssl: dbConfig?.ssl,
+		})
+		const drizzleConfig = configService.get('drizzle') as DrizzleConfig
+		return drizzle(pool, { ...drizzleConfig })
+	},
+}
 @Module({
-	providers: [
-		{
-			provide: DRIZZLE,
-			inject: [ConfigService],
-			useFactory: (configService: ConfigService) => {
-				const dbConfig = configService.get<IDBConfig>('db')
-				const pool = new Pool({
-					connectionString: dbConfig?.url,
-					ssl: dbConfig?.ssl,
-				})
-				const drizzleConfig = configService.get('drizzle') as DrizzleConfig
-				return drizzle(pool, { ...drizzleConfig })
-			},
-		},
-	],
-	exports: [DRIZZLE],
+	providers: [DrizzleProvider],
+	exports: [DrizzleProvider],
 })
 export class DbModule {}

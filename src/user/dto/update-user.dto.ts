@@ -4,7 +4,7 @@ import { createUserSchema } from './create-user.dto'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const updateUserSchema = createUserSchema
 	.extend({
-		tokenID: z.string(),
+		tokenID: z.string().nullable(),
 	})
 	.partial({
 		name: true,
