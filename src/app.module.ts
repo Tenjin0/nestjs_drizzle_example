@@ -14,6 +14,7 @@ import drizzleConfig from './config/drizzle.config'
 import jwtConfig from './config/jwt.config'
 import { APP_GUARD } from '@nestjs/core'
 import { JwtAuthGuard } from './auth/guards/jwt/jwt-auth.guard'
+import refreshJwtConfig from './config/refresh_jwt.config'
 
 @Module({
 	imports: [
@@ -27,7 +28,7 @@ import { JwtAuthGuard } from './auth/guards/jwt/jwt-auth.guard'
 				'.env',
 			],
 			expandVariables: true,
-			load: [serverConfig, dbConfig, hashConfig, passwordConfig, drizzleConfig, jwtConfig],
+			load: [serverConfig, dbConfig, hashConfig, passwordConfig, drizzleConfig, jwtConfig, refreshJwtConfig],
 		}),
 		RoleModule,
 		UserModule,

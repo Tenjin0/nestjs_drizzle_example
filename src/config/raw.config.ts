@@ -5,9 +5,14 @@ import { InternalServerErrorException } from '@nestjs/common'
 
 let PUBLIC_KEY: Buffer
 let PRIVATE_KEY: Buffer
+let REFRESH_PUBLIC_KEY: Buffer
+let REFRESH_PRIVATE_KEY: Buffer
 try {
 	PUBLIC_KEY = readFileSync('.certs/public_key.pem')
 	PRIVATE_KEY = readFileSync('.certs/private_key.pem')
+
+	REFRESH_PUBLIC_KEY = readFileSync('.certs/public_key.pem')
+	REFRESH_PRIVATE_KEY = readFileSync('.certs/private_key.pem')
 } catch (err) {
 	console.error('If you have no .certs folders please execute generate_key.sh')
 	const error = new InternalServerErrorException('Unable to get cert keys')
@@ -33,6 +38,7 @@ export const rawConfig = (schema?: any) => {
 			MIN_LENGTH: 10,
 			MIN_DIGIT: 2,
 			MIN_UPPERCASE: 2,
+			PREFIX: process.env.PREFIX_PASSWORD ?? '',
 		},
 		hash: {
 			salt: 10,
@@ -40,8 +46,14 @@ export const rawConfig = (schema?: any) => {
 		jwt: {
 			PUBLIC_KEY: PUBLIC_KEY.toString(),
 			PRIVATE_KEY: PRIVATE_KEY.toString(),
-			algorithm: ['RS256'],
+			algorithm: 'RS256',
 			expire_in: process.env.JWT_EXPIRE_IN ?? '3h',
+		},
+		refresh_jwt: {
+			PUBLIC_KEY: REFRESH_PUBLIC_KEY.toString(),
+			PRIVATE_KEY: REFRESH_PRIVATE_KEY.toString(),
+			algorithm: 'RS256',
+			expire_in: process.env.JWT_EXPIRE_IN ?? '3d',
 		},
 	}
 	return configuration

@@ -13,6 +13,7 @@ export interface IPasswordConfig {
 	MIN_LENGTH: number
 	MIN_DIGIT: number
 	MIN_UPPERCASE: number
+	PREFIX?: string
 }
 
 export interface IHashConfig {
@@ -22,7 +23,7 @@ export interface IHashConfig {
 export interface IJWTConfig {
 	PUBLIC_KEY: string
 	PRIVATE_KEY: string
-	algorithm: Algorithm[]
+	algorithm: Algorithm
 	expire_in: string
 }
 export interface IConfig {
@@ -32,6 +33,7 @@ export interface IConfig {
 	password: IPasswordConfig
 	hash: IHashConfig
 	jwt: IJWTConfig
+	refresh_jwt: IJWTConfig
 }
 
 // export default (schema) => {

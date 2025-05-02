@@ -6,7 +6,7 @@ import { IServerConfig } from './config'
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule)
 
-	app.setGlobalPrefix('api', { exclude: ['auth/login', 'auth/signin'] })
+	app.setGlobalPrefix('api', { exclude: ['auth/login', 'auth/signin', 'auth/refresh'] })
 
 	const configService = app.get(ConfigService)
 	const serverConfig = configService.get<IServerConfig>('server')

@@ -3,3 +3,6 @@ mkdir .certs
 
 openssl genrsa -out .certs/private_key.pem 2048
 openssl rsa -in .certs/private_key.pem -pubout > .certs/public_key.pem
+
+openssl genrsa -out .certs/refresh_private_key.pem 2048
+openssl rsa -in .certs/refresh_private_key.pem -pubout > .certs/refresh_public_key.pem

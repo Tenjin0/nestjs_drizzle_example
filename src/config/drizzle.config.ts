@@ -4,7 +4,7 @@ import { DrizzleConfig } from 'drizzle-orm'
 import * as schema from '../db/schema'
 import { rawConfig } from './raw.config'
 
-const drizzle: () => DrizzleConfig = () => ({
+const drizzleConfig: () => DrizzleConfig = () => ({
 	...rawConfig(schema).drizzle,
 })
-export default registerAs<DrizzleConfig>('drizzle', drizzle)
+export default registerAs<DrizzleConfig>('drizzle', drizzleConfig)

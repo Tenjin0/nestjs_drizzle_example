@@ -8,7 +8,8 @@ import { DbModule } from '../db/db.module'
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt'
 import { ConfigService, ConfigType } from '@nestjs/config'
 import JwtConfig from '../config/jwt.config'
-import { JwtStrategy } from './strategies/jwt.strategiy'
+import { JwtStrategy } from './strategies/jwt.strategy'
+import { RefreshJwtStrategy } from './strategies/refresh_jwt.strategiy'
 
 @Module({
 	imports: [
@@ -32,6 +33,6 @@ import { JwtStrategy } from './strategies/jwt.strategiy'
 	],
 
 	controllers: [AuthController],
-	providers: [UserService, AuthService, JwtStrategy, LocalStrategy],
+	providers: [UserService, AuthService, JwtStrategy, LocalStrategy, RefreshJwtStrategy],
 })
 export class AuthModule {}

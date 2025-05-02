@@ -1,24 +1,14 @@
-import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres'
-import { Client } from 'pg'
 import * as schema from '../src/db/schema'
-import { rawConfig } from '../src/config/raw.config'
 import { UserService } from '../src/user/user.service'
 import { ConfigService } from '@nestjs/config'
-if (!process.env.NODE_ENV) {
-	process.env.NODE_ENV = 'development'
-}
+import { configService, init } from './_init'
+
 // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-member-access
-require('dotenv').config({
-	path: ['.env', '.env.' + process.env.NODE_ENV, '.env.' + process.env.NODE_ENV + '.local'],
-	override: true,
-})
-const configService = {
-	get: (header) => {
-		const config = rawConfig(schema)
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-		return config[header]
-	},
-}
+// require('dotenv').config({
+// 	path: ['.env', '.env.' + process.env.NODE_ENV, '.env.' + process.env.NODE_ENV + '.local'],
+// 	override: true,
+// })
+
 async function reset(db, tableName: string) {
 	await db.execute('TRUNCATE TABLE "' + tableName + '" RESTART IDENTITY CASCADE;')
 }
@@ -53,25 +43,11 @@ async function seedRoles(db) {
 	await db.insert(schema.rolesTable).values(roles)
 }
 
-const init = async () => {
-	console.log(process.env.DB_URL)
-
-	const client = new Client({
-		connectionString: process.env.DB_URL,
-		ssl: process.env.NODE_ENV === 'production',
-	})
-	const db = drizzle(client, { logger: true, schema: schema }) as NodePgDatabase<typeof schema>
-	await client.connect()
-	db['client'] = client
-	return db
-}
-
 void init().then(async (db) => {
 	try {
 		await seedRoles(db)
 		await seedusers(db)
 
-		console.log(db.query.usersTable)
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 		db['client'].end()
 	} catch (err) {

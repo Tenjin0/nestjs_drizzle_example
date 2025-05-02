@@ -9,6 +9,7 @@ export const usersTable = t.pgTable('users', {
 	name: t.varchar('name', { length: 255 }).notNull(),
 	email: t.varchar('email', { length: 255 }).notNull().unique(),
 	password: t.varchar('password', { length: 255 }),
+	tokenID: t.varchar('token_id', { length: 100 }),
 	idRole: t
 		.integer('id_role')
 		.notNull()

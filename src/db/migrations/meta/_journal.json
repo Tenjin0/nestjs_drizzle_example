@@ -50,6 +50,13 @@
       "when": 1746098999405,
       "tag": "0006_role_name_length",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1746144036381,
+      "tag": "0007_add_user_token_id",
+      "breakpoints": true
     }
   ]
 }

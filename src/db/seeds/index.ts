@@ -1,7 +1,7 @@
 import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { Client } from 'pg'
 import * as schema from '../schema'
-import configuration from '../../../src/config'
+import { rawConfig } from '../../../src/config/raw.config'
 import { UserService } from '../../../src/user/user.service'
 import { ConfigService } from '@nestjs/config'
 if (!process.env.NODE_ENV) {
@@ -14,7 +14,7 @@ require('dotenv').config({
 })
 const configService = {
 	get: (header) => {
-		const config = configuration(schema)()
+		const config = rawConfig(schema)
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		return config[header]
 	},
@@ -50,7 +50,7 @@ async function seedRoles(db) {
 			name: 'GUEST',
 		},
 	]
-	await db.insert(schema.roles).values(roles)
+	await db.insert(schema.rolesTable).values(roles)
 }
 
 const init = async () => {
