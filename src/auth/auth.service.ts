@@ -85,4 +85,9 @@ export class AuthService {
 		const buffer = Buffer.from(inputString, 'utf8')
 		return buffer.toString('base64')
 	}
+
+	async findUserById(id: number) {
+		const user = await this.userService.findOne(id)
+		return user
+	}
 }

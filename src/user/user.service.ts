@@ -70,7 +70,7 @@ export class UserService {
 		return this.db.query.usersTable.findMany()
 	}
 
-	findOne(id: number) {
+	async findOne(id: number) {
 		return this.db.query.usersTable
 			.findMany({
 				limit: 1,

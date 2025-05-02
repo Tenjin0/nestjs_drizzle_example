@@ -10,7 +10,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 	constructor(
 		@Inject(JwtConfig.KEY)
 		jwtConfig: ConfigType<typeof JwtConfig>,
-		@Inject(UserService)
 		private userService: UserService,
 	) {
 		super({

@@ -1,9 +1,7 @@
 import { BadRequestException, ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { AuthGuard } from '@nestjs/passport'
-import { Observable } from 'rxjs'
 import * as jwt from 'jsonwebtoken'
-import { IJWTConfig } from '../../../config'
 import JwtConfig from '../../../config/jwt.config'
 import { ConfigType } from '@nestjs/config'
 import { JwtStrategy } from '../../strategies/jwt.strategy'
@@ -19,22 +17,18 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 	) {
 		super()
 	}
-	async canActivate(context: ExecutionContext): Promise<boolean>  {
+	async canActivate(context: ExecutionContext): Promise<boolean> {
 		const isPublic = this.reflector.getAllAndOverride<boolean>(ISPUBLIC, [context.getHandler(), context.getClass()])
-		console.log('jwt', isPublic)
+		console.log('jwt guard', isPublic)
 		if (isPublic) return true // if not public it will not authorize request header without jwt token
 		const request = context.switchToHttp().getRequest()
 
 		const token = this.getToken(request)
-		console.log(token)
 		try {
 			const decoded = jwt.verify(token, this.jwtConfig.PRIVATE_KEY, { algorithms: [this.jwtConfig.algorithm] })
 			request.user = decoded
-			console.log(request.user)
-			console.log(decoded)
 			await this.jwtStragegy.validate(decoded)
-		}
-		catch(err) {
+		} catch (err) {
 			console.error(err)
 			throw new UnauthorizedException('Invalid access token')
 		}
@@ -52,5 +46,4 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 		const [, token] = request.headers.authorization.split(' ') ?? []
 		return token as string
 	}
-
 }

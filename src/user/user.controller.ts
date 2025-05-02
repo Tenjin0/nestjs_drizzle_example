@@ -1,8 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common'
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGuards } from '@nestjs/common'
 import { UserService } from './user.service'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
+import { ERole } from '../role/types/role.enum'
+import { RoleDecorator } from '../role/decorators/role.decorator'
+import { AuthGuard } from '@nestjs/passport'
+import { JwtAuthGuard } from '../auth/guards/jwt/jwt-auth.guard'
+import { RolesGuard } from '../role/guards/role.guard'
 
+@UseGuards(RolesGuard)
+@UseGuards(JwtAuthGuard) // needed to be executed before rolesguard
+@RoleDecorator([ERole.SUPERADMIN, ERole.ADMIN])
 @Controller('users')
 export class UserController {
 	constructor(private readonly userService: UserService) {}

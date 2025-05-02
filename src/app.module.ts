@@ -17,6 +17,7 @@ import { JwtAuthGuard } from './auth/guards/jwt/jwt-auth.guard'
 import refreshJwtConfig from './config/refresh_jwt.config'
 import { JwtStrategy } from './auth/strategies/jwt.strategy'
 import { UserService } from './user/user.service'
+import { RolesGuard } from './role/guards/role.guard'
 
 @Module({
 	imports: [
@@ -42,6 +43,10 @@ import { UserService } from './user/user.service'
 		{
 			provide: APP_GUARD,
 			useClass: JwtAuthGuard,
+		},
+		{
+			provide: APP_GUARD,
+			useClass: RolesGuard
 		},
 		JwtStrategy,
 		UserService,

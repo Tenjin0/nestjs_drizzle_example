@@ -4,3 +4,5 @@ export enum ERole {
 	USER = 'USER',
 	GUEST = 'GUEST',
 }
+
+export const ARoles = Object.values(ERole)
