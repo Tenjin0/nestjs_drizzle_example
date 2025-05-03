@@ -10,6 +10,7 @@ import { ConfigType } from '@nestjs/config'
 import RefreshJwtConfig from '../config/refresh_jwt.config'
 import { JwtSignOptions } from '@nestjs/jwt'
 import { UserService } from '../user/user.service'
+import { ApiBasicAuth, ApiBearerAuth } from '@nestjs/swagger'
 
 @Controller('auth')
 export class AuthController {
@@ -30,6 +31,7 @@ export class AuthController {
 		return req.user
 	}
 
+	@ApiBasicAuth()
 	@Post('signin')
 	@UseGuards(BasicAuthGuard)
 	@UseInterceptors(BasicInterceptor)
@@ -65,11 +67,10 @@ export class AuthController {
 			access_token: token,
 		}
 	}
-
+	@ApiBearerAuth()
 	@HttpCode(HttpStatus.OK)
 	@Post('signout')
 	async signOut(@Request() req) {
-		console.log(req.user)
 		await this.userService.update(req.user?.sub, { tokenID: null })
 	}
 }

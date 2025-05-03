@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
-import { DbModule, DRIZZLE, DrizzleProvider } from './db/db.module'
+import { DbModule, DrizzleProvider } from './db/db.module'
 import { ConfigModule } from '@nestjs/config'
 import { RoleModule } from './role/role.module'
 import { UserModule } from './user/user.module'
@@ -46,7 +46,7 @@ import { RolesGuard } from './role/guards/role.guard'
 		},
 		{
 			provide: APP_GUARD,
-			useClass: RolesGuard
+			useClass: RolesGuard,
 		},
 		JwtStrategy,
 		UserService,
