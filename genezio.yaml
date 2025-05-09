@@ -1,0 +1,16 @@
+name: nestjs-drizzle-example
+region: us-east-1
+yamlVersion: 2
+services:
+    databases:
+        - name: nestjs_drizzle_example
+          type: postgres-neon
+nestjs:
+    path: .
+    packageManager: npm
+    scripts:
+        start:
+            - npm install
+            - npm run start:prod
+        deploy:
+            - npm install
