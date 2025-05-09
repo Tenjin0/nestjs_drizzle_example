@@ -1,0 +1,33 @@
+name: genezio workflow
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v4
+      - name: use Nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install
+      - run: npm run build
+  deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v4
+      - name: use Nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: Genez-io/genezio-github-action@v3
+        with:
+          token: ${{ secrets.GENEZIO_TOKEN }}
+      - name: Deploy backend
+        working-directory: ./
+        run: genezio deploy
