@@ -74,10 +74,10 @@ jobs:
           name: env-artifact
           path: .
       - name: Display structure of downloaded files
-        run: ls -R
+        run: ls
       - uses: Genez-io/genezio-github-action@v3
         with:
           token: ${{ secrets.GENEZIO_TOKEN }}
-      - name: Deploy backend
+      - name: Deploy nestjs backend
         working-directory: /
         run: genezio deploy
