@@ -82,4 +82,4 @@ jobs:
         run: genezio getenv .env
       - name: Deploy nestjs backend
         working-directory: /
-      - run: genezio deploy genezio deploy
+        run: genezio deploy genezio deploy
