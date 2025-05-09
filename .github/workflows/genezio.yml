@@ -18,7 +18,7 @@ jobs:
       - run: npm run build
       - name: generate keys
         run: ./generate_keys.sh
-      - name: Upload Artifact
+      - name: my-artifact
         uses: actions/upload-artifact@v4
         with:
           name: nest-app
@@ -36,15 +36,19 @@ jobs:
         with:
           node-version: '22'
       - name: Download container react dist
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: download dist folder
+          name: my-artifact
           path: |
             dist
-            .cert
+            .certs
+      - name: Display structure of downloaded files
+        run: ls -R
       - uses: Genez-io/genezio-github-action@v3
         with:
           token: ${{ secrets.GENEZIO_TOKEN }}
       - name: Deploy backend
-        working-directory: dist
+        working-directory: |
+          dist
+          .cert
         run: genezio deploy
