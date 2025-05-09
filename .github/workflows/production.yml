@@ -7,6 +7,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: main
     steps:
       - name: Copy repo 
         uses: actions/checkout@v4
@@ -22,8 +23,9 @@ jobs:
         uses: SpicyPizza/create-envfile@v2.0
         with:
           envkey_DB_URL: ${{ secrets.DB_URL }}
-          envkey_API_PORT: 3100
+          envkey_API_PORT: ${{ vars.API_PORT}}
           envkey_PREFIX_PASSWORD: ${{ secrets.PREFIX_PASSWORD }}
+          envkey_GENEZIO_TOKEN: ${{ secrets.GENEZIO_TOKEN }}
           file_name: .env
           fail_on_empty: false
           sort_keys: false
@@ -49,6 +51,7 @@ jobs:
           include-hidden-files: true
   deploy-backend:
     runs-on: ubuntu-latest
+    environment: main
     needs: build
     steps:
       - name: Checkout 
