@@ -11,6 +11,9 @@ nestjs:
             - npm run start:prod
         deploy:
             - npm install
+        build:
+            - npm install
+            - npm run build
         local:
             - npm install
             - npm run start:prod
