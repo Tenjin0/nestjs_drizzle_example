@@ -3,3 +3,7 @@
 src
 draft
 test
+.env.development
+.env.development.local
+.gitignore
+generate_keys.sh
