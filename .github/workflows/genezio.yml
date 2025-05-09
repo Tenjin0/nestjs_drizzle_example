@@ -8,7 +8,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout 
+      - name: Copy repo 
         uses: actions/checkout@v4
       - name: use Nodejs
         uses: actions/setup-node@v4
@@ -16,11 +16,15 @@ jobs:
           node-version: '22'
       - run: npm install
       - run: npm run build
+      - name: generate keys
+        run: ./generate_keys.sh
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: nest-app
-          path: .
+          path: |
+            ./.certs
+            ./dist
   deploy-backend:
     runs-on: ubuntu-latest
     needs: build
