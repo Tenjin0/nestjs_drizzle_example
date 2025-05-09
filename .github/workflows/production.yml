@@ -78,5 +78,5 @@ jobs:
         with:
           token: ${{ secrets.GENEZIO_TOKEN }}
       - name: Deploy nestjs backend
-        working-directory: /
+        working-directory: ./
         run: genezio deploy
