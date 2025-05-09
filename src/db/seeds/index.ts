@@ -27,7 +27,7 @@ async function seedusers(db) {
 	const user = {
 		name: 'Tenji',
 		email: 'petitpatrice@gmail.com',
-		password: process.env.password ?? 'toto',
+		password: process.env.PASSWORD ?? 'toto',
 		idRole: 1,
 	}
 
