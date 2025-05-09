@@ -78,7 +78,8 @@ jobs:
       - uses: Genez-io/genezio-github-action@v3
         with:
           token: ${{ secrets.GENEZIO_TOKEN }}
+      - name: get env file
+        run: genezio getenv .env
       - name: Deploy nestjs backend
         working-directory: /
-      - run: genezio getenv .env
       - run: genezio deploy genezio deploy
