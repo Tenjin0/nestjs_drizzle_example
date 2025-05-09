@@ -10,3 +10,4 @@ nestjs:
             - npm run start:prod
         deploy:
             - npm install
+    entry: ./dist/src/main.js
