@@ -51,6 +51,7 @@ jobs:
           include-hidden-files: true
   deploy-backend:
     runs-on: ubuntu-latest
+    environment: main
     needs: build
     steps:
       - name: Checkout 
