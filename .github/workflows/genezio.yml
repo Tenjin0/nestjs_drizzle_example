@@ -19,8 +19,8 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: dist
-          path: /dist
+          name: nest-app
+          path: .
   deploy-backend:
     runs-on: ubuntu-latest
     steps:
