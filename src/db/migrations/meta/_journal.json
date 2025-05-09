@@ -71,6 +71,13 @@
       "when": 1746697093066,
       "tag": "0009_create_devices",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1746806054899,
+      "tag": "0010_seed_db",
+      "breakpoints": true
     }
   ]
 }
