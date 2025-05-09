@@ -1,4 +1,14 @@
-import { Controller, Post, UseGuards, Request, HttpCode, HttpStatus, UseInterceptors, Inject } from '@nestjs/common'
+import {
+	Controller,
+	Post,
+	UseGuards,
+	Request,
+	HttpCode,
+	HttpStatus,
+	UseInterceptors,
+	Inject,
+	Body,
+} from '@nestjs/common'
 
 import { AuthService } from './auth.service'
 import { LocalAuthGuard } from './guards/local/local-auth.guard'
@@ -10,6 +20,8 @@ import { ConfigType } from '@nestjs/config'
 import RefreshJwtConfig from '../config/refresh_jwt.config'
 import { JwtSignOptions } from '@nestjs/jwt'
 import { UserService } from '../user/user.service'
+import { ApiBasicAuth, ApiBearerAuth } from '@nestjs/swagger'
+import { JwtAuthGuard } from './guards/jwt/jwt-auth.guard'
 
 @Controller('auth')
 export class AuthController {
@@ -30,6 +42,7 @@ export class AuthController {
 		return req.user
 	}
 
+	@ApiBasicAuth()
 	@Post('signin')
 	@UseGuards(BasicAuthGuard)
 	@UseInterceptors(BasicInterceptor)
@@ -65,11 +78,11 @@ export class AuthController {
 			access_token: token,
 		}
 	}
-
+	@ApiBearerAuth()
 	@HttpCode(HttpStatus.OK)
+	@UseGuards(JwtAuthGuard) // used for test
 	@Post('signout')
 	async signOut(@Request() req) {
-		console.log(req.user)
 		await this.userService.update(req.user?.sub, { tokenID: null })
 	}
 }

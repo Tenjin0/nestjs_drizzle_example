@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
-import { DbModule, DRIZZLE, DrizzleProvider } from './db/db.module'
+import { DbModule, DrizzleProvider } from './db/db.module'
 import { ConfigModule } from '@nestjs/config'
 import { RoleModule } from './role/role.module'
 import { UserModule } from './user/user.module'
@@ -18,6 +18,8 @@ import refreshJwtConfig from './config/refresh_jwt.config'
 import { JwtStrategy } from './auth/strategies/jwt.strategy'
 import { UserService } from './user/user.service'
 import { RolesGuard } from './role/guards/role.guard'
+import { LocationModule } from './location/location.module'
+import { DeviceModule } from './device/device.module'
 
 @Module({
 	imports: [
@@ -36,6 +38,8 @@ import { RolesGuard } from './role/guards/role.guard'
 		RoleModule,
 		UserModule,
 		AuthModule,
+		LocationModule,
+		DeviceModule,
 	],
 	controllers: [AppController],
 	providers: [
@@ -46,7 +50,7 @@ import { RolesGuard } from './role/guards/role.guard'
 		},
 		{
 			provide: APP_GUARD,
-			useClass: RolesGuard
+			useClass: RolesGuard,
 		},
 		JwtStrategy,
 		UserService,

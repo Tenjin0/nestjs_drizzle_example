@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { createUserSchema } from './create-user.dto'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const updateUserSchema = createUserSchema
+export const updateUserSchema = createUserSchema
 	.extend({
 		tokenID: z.string().nullable(),
 	})

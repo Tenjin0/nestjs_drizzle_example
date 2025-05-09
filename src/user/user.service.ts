@@ -1,5 +1,6 @@
-import { Inject, Injectable } from '@nestjs/common'
-import { eq } from 'drizzle-orm'
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common'
+import { and, eq, isNull } from 'drizzle-orm'
+import { compare } from 'bcrypt'
 
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
@@ -10,12 +11,19 @@ import { ConfigService } from '@nestjs/config'
 import { IHashConfig, IPasswordConfig } from '../config'
 import { hashPassword } from '../common/functions/hash_password'
 import { usersTable } from '../db/schema'
+import { NDEServiceDB } from '../common/abstracts/servicesDB.class'
+import { ETable } from '../common/enums/table.enum'
+import { TUser } from '../db/schema/users'
+
 @Injectable()
-export class UserService {
+export class UserService extends NDEServiceDB<TUser, CreateUserDto, UpdateUserDto> {
+	excludedFields: string[] = ['password', 'tokenID']
 	constructor(
 		@Inject(ConfigService) private configService: ConfigService,
-		@Inject(DRIZZLE) private db: DrizzleDB,
-	) {}
+		@Inject(DRIZZLE) protected db: DrizzleDB,
+	) {
+		super(db, usersTable, ETable.USER)
+	}
 
 	hashingPassword(password) {
 		const salt: number = this.configService.get<IHashConfig>('hash')?.salt as number
@@ -32,16 +40,17 @@ export class UserService {
 			createUserDto.password = password
 		}
 		createUserDto.password = await this.hashingPassword(createUserDto.password)
-		return this.db.insert(usersTable).values(createUserDto)
+		return super.create(createUserDto)
 	}
 
 	findByEmail(email: string) {
+		// console.log(getTableColumns(usersTable))
 		return this.db.query.usersTable
 			.findMany({
 				columns: {
 					id: true,
 					email: true,
-					deletedAt: true,
+					deletedAt: false,
 					password: true,
 				},
 				with: {
@@ -53,7 +62,7 @@ export class UserService {
 					},
 				},
 				limit: 1,
-				where: eq(usersTable.email, email),
+				where: and(eq(usersTable.email, email), isNull(usersTable.deletedAt)),
 			})
 			.then((users) => {
 				if (users.length === 0) {
@@ -66,52 +75,12 @@ export class UserService {
 		// return this.db.select().from(users).where(eq(users.email, email))
 	}
 
-	findAll() {
-		return this.db.query.usersTable.findMany()
-	}
+	async validateUser(email: string, password: string, prefix?: string) {
+		const user = await this.findByEmail(email)
+		if (!user) throw new UnauthorizedException('User not found')
+		const isPasswordMatch = await compare(prefix + password, user.password)
+		if (!isPasswordMatch) throw new UnauthorizedException('Invalid Creditentials')
 
-	async findOne(id: number) {
-		return this.db.query.usersTable
-			.findMany({
-				limit: 1,
-				columns: {
-					id: true,
-					email: true,
-					tokenID: true,
-					deletedAt: true,
-				},
-				where: eq(usersTable.id, id),
-				with: {
-					role: {
-						columns: {
-							id: true,
-							name: true,
-						},
-					},
-				},
-			})
-			.then((users) => {
-				if (users.length === 0) {
-					return null
-				}
-				if (users.length > 0) {
-					return users[0]
-				}
-			})
-	}
-
-	async update(id: number, updateUserDto: UpdateUserDto) {
-		if (updateUserDto.password) {
-			updateUserDto.password = await this.hashingPassword(updateUserDto.password)
-		}
-		return this.db
-			.update(usersTable)
-			.set(updateUserDto)
-			.where(eq(usersTable.id, id))
-			.returning({ id: usersTable.id, updated_at: usersTable.updatedAt })
-	}
-
-	remove(id: number) {
-		return `This action removes a #${id} user`
+		return { ...user, password: undefined } //satisfies Partial<TUser>
 	}
 }

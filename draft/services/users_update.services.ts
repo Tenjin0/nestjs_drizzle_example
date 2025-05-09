@@ -1,23 +1,10 @@
-import { eq } from 'drizzle-orm'
-import { usersTable } from '../../src/db/schema/users'
-import { init } from '../_init'
+import { initDB } from '../_init'
+import { configService } from '../../src/common/test/_init'
+import { UserService } from '../../src/user/user.service'
+import { ConfigService } from '@nestjs/config'
 
-const updateData = { tokenId: 'OTk2NjQ4NjItZWNiZC00Y2RhLWFmOWEtMThhYjcxZjNlYzkw' }
-
-void init().then(async (db) => {
-	try {
-		const result = await db
-			.update(usersTable)
-			.set({ tokenID: updateData.tokenId })
-			.where(eq(usersTable.id, 1))
-			.returning({ id: usersTable.id })
-		// eslint-disable-next-line no-console
-		console.log(result)
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-		db['client'].end()
-	} catch (err) {
-		console.error(err)
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-		db['client'].end()
-	}
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+void initDB(async (db, _close) => {
+	const userService = new UserService(configService as ConfigService, db)
+	await userService.findAll()
 })

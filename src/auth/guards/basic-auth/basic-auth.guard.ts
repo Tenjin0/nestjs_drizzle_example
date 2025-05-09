@@ -27,7 +27,7 @@ export class BasicAuthGuard extends AuthGuard('basic') implements CanActivate {
 		if (creditentials.length < 2) {
 			throw new BadRequestException('Invalid creditential in header.authorization')
 		}
-		request.creditentials = {
+		request.body = {
 			email: creditentials[0],
 			password: creditentials[1],
 		}
