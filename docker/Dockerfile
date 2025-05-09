@@ -13,6 +13,9 @@ COPY tsconfig.build.json tsconfig.build.json
 COPY .env .env
 
 RUN npm install
+RUN npm install -g @nestjs/cli
+RUN nest build
 RUN apk add --update openssl
 RUN ./generate_keys.sh
-CMD ["node", '--import=tsx', 'src/main.ts']
+RUN ls -l
+CMD ["npm", "run" "start:prod:docker"]
