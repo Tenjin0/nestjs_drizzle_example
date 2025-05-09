@@ -27,7 +27,11 @@ jobs:
           file_name: .env
           fail_on_empty: false
           sort_keys: false
-
+      - name: Display structure of downloaded files
+        run: ls
+      - name: print env
+        run: cat .env
+      - uses: Genez-io/genezio-github-action@v3
       - name: upload dist
         uses: actions/upload-artifact@v4
         with:
@@ -37,12 +41,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: certs-artifact
-          path: ./.certs
+          path: ./certs
       - name: upload .env
         uses: actions/upload-artifact@v4
         with:
           name: env-artifact
-          path: .env
+          path: ./.env
   deploy-backend:
     runs-on: ubuntu-latest
     needs: build
