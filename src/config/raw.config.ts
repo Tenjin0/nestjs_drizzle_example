@@ -11,8 +11,8 @@ try {
 	PUBLIC_KEY = readFileSync('certs/public_key.pem')
 	PRIVATE_KEY = readFileSync('certs/private_key.pem')
 
-	REFRESH_PUBLIC_KEY = readFileSync('certs/public_key.pem')
-	REFRESH_PRIVATE_KEY = readFileSync('certs/private_key.pem')
+	REFRESH_PUBLIC_KEY = readFileSync('certs/refresh_public_key.pem')
+	REFRESH_PRIVATE_KEY = readFileSync('certs/refresh_private_key.pem')
 } catch (err) {
 	console.error('If you have no .certs folders please execute generate_key.sh')
 	const error = new InternalServerErrorException('Unable to get cert keys')

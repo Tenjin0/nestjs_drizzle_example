@@ -1,19 +1,5 @@
 name: nestjs-drizzle-example
 region: eu-central-1
 yamlVersion: 2
-nestjs:
-    path: ./
-    runtime: nodejs20.x
-    packageManager: npm
-    scripts:
-        start:
-            - npm install
-            - npm run start:prod
-        deploy:
-            - npm install
-        build:
-            - npm install
-            - npm run build
-        local:
-            - npm install
-            - npm run start:prod
+container:
+  path: ./Dockerfile

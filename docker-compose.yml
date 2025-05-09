@@ -1,0 +1,10 @@
+version: '3.7'
+services:
+  api:
+    build: .
+    container_name: nestjs_drizzle_example
+    image: nestjs_drizzle_example
+    env_file: .env
+    ports:
+      - "3100:3100"
+    command: node --import=tsx src/main.ts
