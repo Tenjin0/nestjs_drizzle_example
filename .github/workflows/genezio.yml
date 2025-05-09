@@ -29,5 +29,5 @@ jobs:
         with:
           token: ${{ secrets.GENEZIO_TOKEN }}
       - name: Deploy backend
-        working-directory: ./
+        working-directory: ./dist
         run: genezio deploy
