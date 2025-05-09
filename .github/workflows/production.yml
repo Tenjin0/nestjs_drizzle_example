@@ -80,7 +80,7 @@ jobs:
       - name: login to genezio
         env:
           GENEZIO_TOKEN: ${{ secrets.GENEZIO_TOKEN }}
-        run: genezio login
+        run: genezio login $GENEZIO_TOKEN
       - name: Deploy nestjs backend
         working-directory: ./
         run: genezio deploy --env .env
