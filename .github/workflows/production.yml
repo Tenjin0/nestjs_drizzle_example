@@ -23,7 +23,7 @@ jobs:
         with:
           envkey_DB_URL: ${{ secrets.DB_URL }}
           envkey_API_PORT: 3100
-          envkey_PREFIX_PASSWORD: ${{ vars.PREFIX_PASSWORD }}
+          envkey_PREFIX_PASSWORD: ${{ secrets.PREFIX_PASSWORD }}
           file_name: .env
           fail_on_empty: false
           sort_keys: false
@@ -47,6 +47,7 @@ jobs:
         with:
           name: env-artifact
           path: ./.env
+          include-hidden-files: true
   deploy-backend:
     runs-on: ubuntu-latest
     needs: build
