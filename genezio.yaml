@@ -1,10 +1,6 @@
 name: nestjs-drizzle-example
 region: eu-central-1
 yamlVersion: 2
-services:
-    databases:
-        - name: nestjs_drizzle_example
-          type: postgres-neon
 nestjs:
     path: ./
     packageManager: npm
