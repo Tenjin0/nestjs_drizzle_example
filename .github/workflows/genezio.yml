@@ -23,7 +23,7 @@ jobs:
         with:
           name: nest-app
           path: |
-            ./.certs
+            .certs
             ./dist
   deploy-backend:
     runs-on: ubuntu-latest
@@ -38,8 +38,10 @@ jobs:
       - name: Download container react dist
         uses: actions/download-artifact@v3
         with:
-          name: build dist folder
-          path: dist
+          name: download dist folder
+          path: |
+            dist
+            .cert
       - uses: Genez-io/genezio-github-action@v3
         with:
           token: ${{ secrets.GENEZIO_TOKEN }}
