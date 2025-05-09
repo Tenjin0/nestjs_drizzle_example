@@ -3,11 +3,12 @@ region: eu-central-1
 yamlVersion: 2
 nestjs:
     path: ./
+    runtime: nodejs20.x
     packageManager: npm
     scripts:
-        start:
-            - npm install
-            - npm run start:prod
         deploy:
             - npm install
-    entry: ./dist/src/main.js
+            - npm run start:prod
+        local:
+            - npm install
+            - npm run start:prod
