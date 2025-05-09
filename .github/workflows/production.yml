@@ -31,7 +31,6 @@ jobs:
         run: ls
       - name: print env
         run: cat .env
-      - uses: Genez-io/genezio-github-action@v3
       - name: upload dist
         uses: actions/upload-artifact@v4
         with:
@@ -78,8 +77,6 @@ jobs:
       - uses: Genez-io/genezio-github-action@v3
         with:
           token: ${{ secrets.GENEZIO_TOKEN }}
-      - name: get env file
-        run: genezio getenv .env
       - name: Deploy nestjs backend
         working-directory: /
         run: genezio deploy genezio deploy
