@@ -1,9 +1,7 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { v4 as uuidv4 } from 'uuid'
-import { compare } from 'bcrypt'
 import { JwtService } from '@nestjs/jwt'
 
-import { UserService } from '../user/user.service'
 import { IAuthJwtPayload } from './types/jwt_payload'
 import { TUser } from '../db/schema/users'
 import { JwtSignOptions } from '@nestjs/jwt'
@@ -14,32 +12,29 @@ import { ConfigType } from '@nestjs/config'
 @Injectable()
 export class AuthService {
 	constructor(
-		private userService: UserService,
 		private jwtService: JwtService,
 		@Inject(JwtConfig.KEY)
 		private jwtConfig: ConfigType<typeof JwtConfig>,
 		@Inject(RefreshJwtConfig.KEY)
 		private refreshJwtConfig: ConfigType<typeof JwtConfig>,
 	) {}
-	findAll() {
-		return `This action returns all auth`
+
+	generateAccessToken(payload: IAuthJwtPayload) {
+		const jwtSignOptions: JwtSignOptions = {
+			algorithm: this.jwtConfig.algorithm,
+			expiresIn: this.jwtConfig.expire_in,
+			privateKey: this.jwtConfig.PRIVATE_KEY,
+		}
+		return this.generateToken(payload, jwtSignOptions)
 	}
 
-	findOne(id: number) {
-		return `This action returns a #${id} auth`
-	}
-
-	remove(id: number) {
-		return `This action removes a #${id} auth`
-	}
-
-	async validateUser(email: string, password: string, prefix?: string) {
-		const user = await this.userService.findByEmail(email)
-		if (!user) throw new UnauthorizedException('User not found')
-		const isPasswordMatch = await compare(prefix + password, user.password)
-		if (!isPasswordMatch) throw new UnauthorizedException('Invalid Creditentials')
-
-		return { ...user, password: undefined } //satisfies Partial<TUser>
+	generateRefreshToken(payload: IAuthJwtPayload) {
+		const refreshJwtSignOptions: JwtSignOptions = {
+			algorithm: this.refreshJwtConfig.algorithm,
+			expiresIn: this.refreshJwtConfig.expire_in,
+			privateKey: this.refreshJwtConfig.PRIVATE_KEY,
+		}
+		return this.generateToken(payload, refreshJwtSignOptions)
 	}
 
 	generateToken(payload: IAuthJwtPayload, jwtSignOptions: JwtSignOptions) {
@@ -86,8 +81,8 @@ export class AuthService {
 		return buffer.toString('base64')
 	}
 
-	async findUserById(id: number) {
-		const user = await this.userService.findOne(id)
-		return user
-	}
+	// async findUserById(id: number) {
+	// 	const user = await this.userService.findOne(id)
+	// 	return user
+	// }
 }

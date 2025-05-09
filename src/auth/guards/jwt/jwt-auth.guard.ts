@@ -19,7 +19,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 	}
 	async canActivate(context: ExecutionContext): Promise<boolean> {
 		const isPublic = this.reflector.getAllAndOverride<boolean>(ISPUBLIC, [context.getHandler(), context.getClass()])
-		console.log('jwt guard', isPublic)
 		if (isPublic) return true // if not public it will not authorize request header without jwt token
 		const request = context.switchToHttp().getRequest()
 
@@ -28,9 +27,12 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 			const decoded = jwt.verify(token, this.jwtConfig.PRIVATE_KEY, { algorithms: [this.jwtConfig.algorithm] })
 			request.user = decoded
 			await this.jwtStragegy.validate(decoded)
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		} catch (err) {
-			console.error(err)
-			throw new UnauthorizedException('Invalid access token')
+			// console.error(err)
+			const error = new UnauthorizedException('Invalid access token')
+			// error['data'] = err
+			throw error
 		}
 		return true
 	}

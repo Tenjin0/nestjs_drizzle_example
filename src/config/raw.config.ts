@@ -47,7 +47,7 @@ export const rawConfig = (schema?: any) => {
 			PUBLIC_KEY: PUBLIC_KEY.toString(),
 			PRIVATE_KEY: PRIVATE_KEY.toString(),
 			algorithm: 'RS256',
-			expire_in: process.env.JWT_EXPIRE_IN ?? '3h',
+			expire_in: process.env.JWT_EXPIRE_IN ?? '1h',
 		},
 		refresh_jwt: {
 			PUBLIC_KEY: REFRESH_PUBLIC_KEY.toString(),

@@ -18,6 +18,8 @@ import refreshJwtConfig from './config/refresh_jwt.config'
 import { JwtStrategy } from './auth/strategies/jwt.strategy'
 import { UserService } from './user/user.service'
 import { RolesGuard } from './role/guards/role.guard'
+import { LocationModule } from './location/location.module'
+import { DeviceModule } from './device/device.module'
 
 @Module({
 	imports: [
@@ -36,6 +38,8 @@ import { RolesGuard } from './role/guards/role.guard'
 		RoleModule,
 		UserModule,
 		AuthModule,
+		LocationModule,
+		DeviceModule,
 	],
 	controllers: [AppController],
 	providers: [

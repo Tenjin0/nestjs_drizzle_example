@@ -1,7 +1,7 @@
 import * as schema from '../src/db/schema'
 import { UserService } from '../src/user/user.service'
 import { ConfigService } from '@nestjs/config'
-import { configService, init } from './_init'
+import { configService } from './_init'
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-member-access
 // require('dotenv').config({
@@ -43,15 +43,15 @@ async function seedRoles(db) {
 	await db.insert(schema.rolesTable).values(roles)
 }
 
-void init().then(async (db) => {
-	try {
-		await seedRoles(db)
-		await seedusers(db)
+// void init().then(async (db) => {
+// 	try {
+// 		await seedRoles(db)
+// 		await seedusers(db)
 
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-		db['client'].end()
-	} catch (err) {
-		console.error(err)
-		db['client'].end()
-	}
-})
+// 		// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+// 		db['client'].end()
+// 	} catch (err) {
+// 		console.error(err)
+// 		db['client'].end()
+// 	}
+// })

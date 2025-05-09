@@ -21,7 +21,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 	}
 	async validate(payload: any) {
 		const { type, sub: idUser, token_id: tokenID } = payload as IAuthJwtPayload
-		console.log('jwt, validate')
 		if (type !== 'access') {
 			throw new UnauthorizedException('Wrong token')
 		}
@@ -29,9 +28,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 		if (!user?.tokenID) {
 			throw new UnauthorizedException('Token no longer valid')
 		}
-		console.log(tokenID, user?.tokenID)
 		if (tokenID !== user?.tokenID) {
-			throw new UnauthorizedException('Invalid token')
+			throw new UnauthorizedException('Token must have been revoked')
 		}
 		return {
 			id: user?.id,
