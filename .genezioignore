@@ -3,7 +3,8 @@
 src
 draft
 test
+docker
 .env.development
 .env.development.local
 .gitignore
-Dockerfile
+
