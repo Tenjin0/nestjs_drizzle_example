@@ -78,7 +78,7 @@ jobs:
       - name: Remove Folder
         uses: JesseTG/rm@v1.0.3
         with:
-          path: /draft
+          path: ./draft
       - name: Display structure of downloaded files
         run: ls
       - uses: Genez-io/genezio-github-action@v3
