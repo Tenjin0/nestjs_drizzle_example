@@ -1,0 +1,1 @@
+ALTER TABLE "locations" ADD CONSTRAINT "locations_namespace_unique" UNIQUE("namespace");

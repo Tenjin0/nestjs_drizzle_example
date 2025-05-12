@@ -56,5 +56,6 @@ export const rawConfig = (schema?: any) => {
 			expire_in: process.env.JWT_EXPIRE_IN ?? '3d',
 		},
 	}
+
 	return configuration
 }
