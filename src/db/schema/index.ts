@@ -1,5 +1,5 @@
 export { usersTable, usersRelations } from './users'
 export { rolesTable } from './roles'
 export { groups } from './groups'
-export { locationTable } from './locations'
+export { locationsTable } from './locations'
 export { devicesTable } from './devices'

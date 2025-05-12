@@ -1,7 +1,7 @@
 import { InferSelectModel, relations } from 'drizzle-orm'
 import * as t from 'drizzle-orm/pg-core'
 
-import { locationTable, TLocation } from './locations'
+import { locationsTable, TLocation } from './locations'
 
 export const devicesTable = t.pgTable('devices', {
 	id: t.integer('id').primaryKey().generatedAlwaysAsIdentity(),
@@ -10,17 +10,17 @@ export const devicesTable = t.pgTable('devices', {
 	info: t.jsonb(),
 	socket_id: t.varchar('socket_id', { length: 255 }),
 	connected: t.boolean().default(false).notNull(),
-	idLocation: t.integer('id_location').references(() => locationTable.id),
-	last_connection: t.timestamp('deleted_at'),
+	idLocation: t.integer('id_location').references(() => locationsTable.id),
+	last_connection: t.timestamp('last_connection'),
 	createdAt: t.timestamp('created_at').notNull().defaultNow(),
 	updatedAt: t.timestamp('updated_at').notNull().defaultNow(),
 	deletedAt: t.timestamp('deleted_at'),
 })
 
 export const devicesRelations = relations(devicesTable, ({ one }) => ({
-	location: one(locationTable, {
+	location: one(locationsTable, {
 		fields: [devicesTable.idLocation],
-		references: [locationTable.id],
+		references: [locationsTable.id],
 	}),
 }))
 

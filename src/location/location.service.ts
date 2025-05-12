@@ -4,7 +4,7 @@ import { UpdateLocationDto } from './dto/update-location.dto'
 import { DRIZZLE } from '../db/db.module'
 import { DrizzleDB } from '../db/types/drizzle'
 import { NDEServiceDB } from '../common/abstracts/servicesDB.class'
-import { locationTable, TLocation } from '../db/schema/locations'
+import { locationsTable, TLocation } from '../db/schema/locations'
 import { ETable } from '../common/enums/table.enum'
 
 export interface IValues {
@@ -15,7 +15,7 @@ export interface IValues {
 @Injectable()
 export class LocationService extends NDEServiceDB<TLocation, CreateLocationDto, UpdateLocationDto> {
 	constructor(@Inject(DRIZZLE) protected db: DrizzleDB) {
-		super(db, locationTable, ETable.LOCATION)
+		super(db, locationsTable, ETable.LOCATION)
 	}
 
 	public create(createLocationDto: CreateLocationDto) {

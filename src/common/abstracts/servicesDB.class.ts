@@ -1,8 +1,11 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { DrizzleDB } from '../../db/types/drizzle'
 import { AnyPgTable, PgTable } from 'drizzle-orm/pg-core/table'
-import { and, eq, isNull } from 'drizzle-orm'
+import { and, eq, getTableColumns, isNull } from 'drizzle-orm'
 import { ETable } from '../enums/table.enum'
+import { NotFoundException } from '@nestjs/common'
+import { TUser } from '../../db/schema/users'
+import { TLocation } from '../../db/schema/locations'
+import { TDevice } from '../../db/schema/devices'
 
 export interface NDETable extends PgTable {
 	id: number
@@ -25,6 +28,21 @@ export interface NDETableDelete {
 	id: number
 	deletedAt: string
 }
+
+export interface IJoinTable {
+	columns: string[]
+	joins: IJoin
+	table: AnyPgTable
+}
+export interface IJoin {
+	left: string
+	rigth: string
+}
+export interface IFindOneOpt {
+	with: { [key: string]: IJoinTable }
+}
+
+export type TRessouce = TUser | TLocation | TDevice
 
 // export type DBTable = PgTableWithColumns<NDETable>
 export class NDEServiceDB<TRessouce, CreateRessouceDto extends object, UpdateLocationDto extends object> {
@@ -57,22 +75,31 @@ export class NDEServiceDB<TRessouce, CreateRessouceDto extends object, UpdateLoc
 	// 	return table
 	// }
 
-	getVisibleFields() {
-		const visibleFields = { id: true }
+	getVisibleFields(selectFormat: boolean = false) {
+		const visibleFields = { id: selectFormat ? this.table['id'] : true }
 		for (const key in this.table) {
 			if (Object.prototype.hasOwnProperty.call(this.table, key)) {
 				if (key === 'enableRLS') {
 					break
 				}
-				if (['created_at', 'updated_at', 'deleted_at'].indexOf(key) >= 0) {
-					visibleFields[key] = false
+				if (['createdAt', 'updatedAt', 'deletedAt'].indexOf(key) >= 0) {
+					// console.log('here', selectFormat)
+					// if (!selectFormat) {
+					// 	visibleFields[key] = false
+					// }
+					continue
 				}
 				if (this.exludedFields.includes(key)) {
-					visibleFields[key] = false
+					// if (!selectFormat) {
+					// 	visibleFields[key] = false
+					// }
+					continue
 				}
-				// eslint-disable-next-line @typescript-eslint/no-unused-vars
-				const element = this.table[key]
-				visibleFields[key] = true
+				if (key !== 'id' && key.startsWith('id')) {
+					continue
+				}
+
+				visibleFields[key] = selectFormat ? this.table[key] : true
 			}
 		}
 		return visibleFields
@@ -89,22 +116,53 @@ export class NDEServiceDB<TRessouce, CreateRessouceDto extends object, UpdateLoc
 		const visibleFields = this.getVisibleFields()
 		return this.db.query[this.tableName].findMany({
 			columns: visibleFields,
-		}) as Promise<TRessouce[]>
+		}) as unknown as Promise<TRessouce[]>
 	}
 
-	async findOne(id: number) {
-		const visibleFields = this.getVisibleFields()
-		const ressources = await this.db.query[this.tableName].findMany({
+	async findOne(id: number, opt?: any) {
+		const visibleFields = this.getVisibleFields(false)
+		// 	if (opt && opt.with) {
+		// 		for (const key in opt.with) {
+		// 			if (Object.prototype.hasOwnProperty.call(opt.with, key)) {
+		// 				const joinOpt = opt.with[key]
+		// 				// for (let i = 0; i < joinOpt.columns.length; i++) {
+		// 				// 	const column = joinOpt.columns[i]
+		// 				// 	visibleFields['roles.' + column] = joinOpt.table[column]
+		// 				// }
+		// 				visibleFields = {
+		// 					...visibleFields,
+		// 					...getTableColumns(joinOpt.table),
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		const findManyOpt = {
 			limit: 1,
 			columns: visibleFields,
 			where: eq(this.table['id'], id),
-		})
+		}
+		if (opt?.with) {
+			findManyOpt['with'] = opt.with
+		}
+		// const query = this.db.select(visibleFields).from(this.table).where(findManyOpt.where).limit(1).$dynamic()
+		// if (opt && opt.with) {
+		// 	for (const key in opt.with) {
+		// 		if (Object.prototype.hasOwnProperty.call(opt.with, key)) {
+		// 			const joinOpt = opt.with[key]
+		// 			query.leftJoin(joinOpt.table, eq(this.table[joinOpt.joins.left], this.table[joinOpt.joins.rigth]))
+		// 		}
+		// 	}
+		// }
+		// const ressources = await query
+		// console.log(ressources)
+		const ressources = await this.db.query[this.tableName].findMany(findManyOpt)
 		if (ressources.length === 0) {
+			throw new NotFoundException(`${this.tableName}.${id} not found`)
 			return null
 		}
 
 		if (ressources.length > 0) {
-			return ressources[0] as Promise<TRessouce>
+			return ressources[0] as unknown as Promise<TRessouce>
 		}
 	}
 
@@ -114,8 +172,8 @@ export class NDEServiceDB<TRessouce, CreateRessouceDto extends object, UpdateLoc
 			.set(updateLocationDto)
 			.where(eq(this.table['id'], id))
 			.returning({ id: this.table['id'], updated_at: this.table['updatedAt'] }) as unknown as Promise<
-			Partial<TRessouce> & NDETableUpdate
-		>
+				Partial<TRessouce> & NDETableUpdate
+			>
 	}
 
 	public remove(id: number) {
@@ -124,7 +182,7 @@ export class NDEServiceDB<TRessouce, CreateRessouceDto extends object, UpdateLoc
 			.set({ deletedAt: new Date() })
 			.where(and(eq(this.table['id'], id), isNull(this.table['deletedAt'])))
 			.returning({ id: this.table['id'], deleted_at: this.table['deletedAt'] }) as unknown as Promise<
-			Partial<TRessouce> & NDETableDelete
-		>
+				Partial<TRessouce> & NDETableDelete
+			>
 	}
 }

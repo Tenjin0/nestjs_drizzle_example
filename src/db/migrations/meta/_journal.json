@@ -78,6 +78,20 @@
       "when": 1746806054899,
       "tag": "0010_seed_db",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1747082338015,
+      "tag": "0011_location_namespace_unique",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1747089206252,
+      "tag": "0012_devices_last_connection",
+      "breakpoints": true
     }
   ]
 }

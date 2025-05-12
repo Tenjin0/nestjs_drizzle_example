@@ -2,7 +2,6 @@ import { PassportStrategy } from '@nestjs/passport'
 import { ExtractJwt, Strategy } from 'passport-jwt'
 import { ConfigType } from '@nestjs/config'
 import { BadRequestException, Inject, UnauthorizedException } from '@nestjs/common'
-import * as jwt from 'jsonwebtoken'
 import { UserService } from '../../user/user.service'
 import { IAuthJwtPayload } from '../types/jwt_payload'
 import RefreshJwtConfig from '../../config/refresh_jwt.config'
@@ -25,19 +24,16 @@ export class RefreshJwtStrategy extends PassportStrategy(Strategy, 'refresh_jwt'
 		this.refreshJwtConfig = refreshJwtConfig
 	}
 	async validate(payload: any) {
-		console.log(payload)
 		const { sub: idUser, type, token_id: tokenID } = payload as IAuthJwtPayload
 		if (type !== 'refresh') {
 			throw new UnauthorizedException('Wrong token')
 		}
 
 		const user = await this.userService.findOne(idUser)
-		console.log(tokenID, user?.tokenID)
 		if (!user?.tokenID || tokenID !== user?.tokenID) {
 			throw new BadRequestException('Invalid refresh token')
 		}
 
-		console.log('refresh validate')
 		return {
 			id: user?.id,
 			email: user?.email,

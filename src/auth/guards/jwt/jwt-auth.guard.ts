@@ -26,10 +26,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 		try {
 			const decoded = jwt.verify(token, this.jwtConfig.PRIVATE_KEY, { algorithms: [this.jwtConfig.algorithm] })
 			request.user = decoded
+			console.log(decoded)
 			await this.jwtStragegy.validate(decoded)
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		} catch (err) {
-			// console.error(err)
+			console.error(err)
 			const error = new UnauthorizedException('Invalid access token')
 			// error['data'] = err
 			throw error

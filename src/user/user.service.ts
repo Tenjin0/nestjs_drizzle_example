@@ -10,7 +10,7 @@ import { generate, GenerateOptions } from 'generate-password'
 import { ConfigService } from '@nestjs/config'
 import { IHashConfig, IPasswordConfig } from '../config'
 import { hashPassword } from '../common/functions/hash_password'
-import { usersTable } from '../db/schema'
+import { rolesTable, usersTable } from '../db/schema'
 import { NDEServiceDB } from '../common/abstracts/servicesDB.class'
 import { ETable } from '../common/enums/table.enum'
 import { TUser } from '../db/schema/users'
@@ -75,6 +75,26 @@ export class UserService extends NDEServiceDB<TUser, CreateUserDto, UpdateUserDt
 		// return this.db.select().from(users).where(eq(users.email, email))
 	}
 
+	findOne(id: number): Promise<TUser | null | undefined> {
+		return super.findOne(id, {
+			with: {
+				// roles: {
+				// 	joins: {
+				// 		left: 'idRole',
+				// 		rigth: 'id',
+				// 	},
+				// 	columns: ['id', 'name'],
+				// 	table: rolesTable,
+				// },
+				role: {
+					columns: {
+						id: true,
+						name: true,
+					},
+				},
+			},
+		})
+	}
 	async validateUser(email: string, password: string, prefix?: string) {
 		const user = await this.findByEmail(email)
 		if (!user) throw new UnauthorizedException('User not found')

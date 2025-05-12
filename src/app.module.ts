@@ -20,6 +20,7 @@ import { UserService } from './user/user.service'
 import { RolesGuard } from './role/guards/role.guard'
 import { LocationModule } from './location/location.module'
 import { DeviceModule } from './device/device.module'
+import { SocketModule } from './socket/socket.module';
 
 @Module({
 	imports: [
@@ -40,6 +41,7 @@ import { DeviceModule } from './device/device.module'
 		AuthModule,
 		LocationModule,
 		DeviceModule,
+		SocketModule,
 	],
 	controllers: [AppController],
 	providers: [
