@@ -92,7 +92,7 @@ export class NDEServiceDB<TRessouce, CreateRessourceDto extends object, UpdateLo
 	// }
 
 	getFieldsArray() {
-		return Object.values(this.visibleFields)
+		return Object.keys(this.visibleFields)
 	}
 
 	generateReverseVisibleFields() {
@@ -147,7 +147,11 @@ export class NDEServiceDB<TRessouce, CreateRessourceDto extends object, UpdateLo
 					continue
 				}
 
-				visibleFields[key] = selectFormat ? this.table[key] : true
+				if (selectFormat) {
+					visibleFields[this.table[key].name] = this.table[key]
+				} else {
+					visibleFields[key] = true
+				}
 			}
 		}
 		return visibleFields
@@ -161,7 +165,7 @@ export class NDEServiceDB<TRessouce, CreateRessourceDto extends object, UpdateLo
 
 	public async count(filters: IFiltersQuery[]) {
 		const query = this.db.select({ count: count() }).from(this.table).limit(1).$dynamic()
-		this.applyFiltersToQuery(query, filters)
+		// this.applyFiltersToQuery(query, filters)
 		// .then((result) => {
 		// 	return result[0].count
 		// })
@@ -177,7 +181,7 @@ export class NDEServiceDB<TRessouce, CreateRessourceDto extends object, UpdateLo
 			const filter = filters[i]
 			const visibleFields = this.getFieldsArray()
 			if (visibleFields.includes(filter.name)) {
-				const field = this.table[filter.name]
+				const field = this.table[this.visibleFields[filter.name]]
 				const value = field instanceof PgTimestamp ? new Date(filter.value) : filter.value
 				switch (filter.op) {
 					case 'eq':
