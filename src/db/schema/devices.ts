@@ -11,10 +11,10 @@ export const devicesTable = t.pgTable('devices', {
 	socket_id: t.varchar('socket_id', { length: 255 }),
 	connected: t.boolean().default(false).notNull(),
 	idLocation: t.integer('id_location').references(() => locationsTable.id),
-	last_connection: t.timestamp('last_connection'),
-	createdAt: t.timestamp('created_at').notNull().defaultNow(),
-	updatedAt: t.timestamp('updated_at').notNull().defaultNow(),
-	deletedAt: t.timestamp('deleted_at'),
+	last_connection: t.timestamp('created_at', { withTimezone: true, precision: 3 }),
+	createdAt: t.timestamp('created_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
+	updatedAt: t.timestamp('updated_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
+	deletedAt: t.timestamp('deleted_at', { withTimezone: true, precision: 3 }),
 })
 
 export const devicesRelations = relations(devicesTable, ({ one }) => ({

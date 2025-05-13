@@ -15,9 +15,9 @@ export const usersTable = t.pgTable('users', {
 		.notNull()
 		.references(() => rolesTable.id),
 	idGroup: t.integer('id_group').references(() => groups.id),
-	createdAt: t.timestamp('created_at').notNull().defaultNow(),
-	updatedAt: t.timestamp('updated_at').notNull().defaultNow(),
-	deletedAt: t.timestamp('deleted_at'),
+	createdAt: t.timestamp('created_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
+	updatedAt: t.timestamp('updated_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
+	deletedAt: t.timestamp('deleted_at', { withTimezone: true, precision: 3 }),
 })
 
 export const usersRelations = relations(usersTable, ({ one }) => ({

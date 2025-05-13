@@ -26,7 +26,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 		try {
 			const decoded = jwt.verify(token, this.jwtConfig.PRIVATE_KEY, { algorithms: [this.jwtConfig.algorithm] })
 			request.user = decoded
-			console.log(decoded)
 			await this.jwtStragegy.validate(decoded)
 		} catch (err) {
 			console.error(err)
@@ -44,6 +43,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 		// console.log(request.headers)
 		if (!request.headers?.authorization) {
 			throw new BadRequestException('Missing authorization in headers request')
+		}
+		if (!request.headers?.authorization.startsWith('Bearer ')) {
+			throw new BadRequestException('Missing authorization Bearer in headers request')
 		}
 		const [, token] = request.headers.authorization.split(' ') ?? []
 		return token as string

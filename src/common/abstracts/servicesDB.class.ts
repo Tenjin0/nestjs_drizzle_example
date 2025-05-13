@@ -1,11 +1,13 @@
 import { DrizzleDB } from '../../db/types/drizzle'
 import { AnyPgTable, PgTable } from 'drizzle-orm/pg-core/table'
-import { and, count, eq, isNull } from 'drizzle-orm'
+import { and, count, eq, gt, gte, isNull, like, lt, lte, ne } from 'drizzle-orm'
 import { ETable } from '../enums/table.enum'
 import { NotFoundException } from '@nestjs/common'
 import { TUser } from '../../db/schema/users'
 import { TLocation } from '../../db/schema/locations'
 import { TDevice } from '../../db/schema/devices'
+import { IFiltersQuery } from '../interceptors/filter.interceptor'
+import { PgSelectBase, PgTimestamp } from 'drizzle-orm/pg-core'
 
 export interface NDETable extends PgTable {
 	id: number
@@ -42,6 +44,9 @@ export interface IFindOneOpt {
 	with: { [key: string]: IJoinTable }
 }
 
+export interface IReverseVisibleFields {
+	[key: string]: string
+}
 export interface IOptionFindAll {
 	page: number
 	perPage: number
@@ -59,6 +64,7 @@ export class NDEServiceDB<TRessouce, CreateRessourceDto extends object, UpdateLo
 	protected tableName: string
 	protected table: AnyPgTable
 	protected db: DrizzleDB
+	protected visibleFields: IReverseVisibleFields
 	constructor(db: DrizzleDB, table: AnyPgTable, tablename: ETable, exludedFields?: string[]) {
 		if (exludedFields) {
 			this.exludedFields = exludedFields
@@ -68,6 +74,7 @@ export class NDEServiceDB<TRessouce, CreateRessourceDto extends object, UpdateLo
 		this.table = table
 		this.db = db
 		this.tableName = tablename
+		this.visibleFields = this.generateReverseVisibleFields()
 		// this.table = this.db.query[this.tableName]
 		// if (!this.table) throw new Error('No table found ' + this.tableName)
 	}
@@ -84,14 +91,46 @@ export class NDEServiceDB<TRessouce, CreateRessourceDto extends object, UpdateLo
 	// 	return table
 	// }
 
-	getVisibleFields(selectFormat: boolean = false) {
+	getFieldsArray() {
+		return Object.values(this.visibleFields)
+	}
+
+	generateReverseVisibleFields() {
+		const result = {}
+		for (const key in this.table) {
+			if (Object.prototype.hasOwnProperty.call(this.table, key)) {
+				if (key === 'enableRLS') {
+					break
+				}
+				if (['deletedAt'].indexOf(key) >= 0) {
+					// console.log('here', selectFormat)
+					// if (!selectFormat) {
+					// 	visibleFields[key] = false
+					// }
+					continue
+				}
+				if (this.exludedFields.includes(key)) {
+					// if (!selectFormat) {
+					// 	visibleFields[key] = false
+					// }
+					continue
+				}
+				if (key !== 'id' && key.startsWith('id')) {
+					continue
+				}
+				result[this.table[key].name] = key
+			}
+		}
+		return result
+	}
+	private generateFieldsForQuery(selectFormat: boolean = false) {
 		const visibleFields = { id: selectFormat ? this.table['id'] : true }
 		for (const key in this.table) {
 			if (Object.prototype.hasOwnProperty.call(this.table, key)) {
 				if (key === 'enableRLS') {
 					break
 				}
-				if (['createdAt', 'updatedAt', 'deletedAt'].indexOf(key) >= 0) {
+				if (['deletedAt'].indexOf(key) >= 0) {
 					// console.log('here', selectFormat)
 					// if (!selectFormat) {
 					// 	visibleFields[key] = false
@@ -114,39 +153,81 @@ export class NDEServiceDB<TRessouce, CreateRessourceDto extends object, UpdateLo
 		return visibleFields
 	}
 	public create(createLocationDto: CreateRessourceDto) {
-		// console.log(this.db.query.locationTable)
 		return this.db
 			.insert(this.table)
 			.values(createLocationDto as unknown as any)
 			.returning() as unknown as Promise<TRessouce>
 	}
 
-	public count() {
-		return this.db
-			.select({ count: count() })
-			.from(this.table)
-			.limit(1)
-			.then((result) => {
-				return result[0].count
-			})
+	public async count(filters: IFiltersQuery[]) {
+		const query = this.db.select({ count: count() }).from(this.table).limit(1).$dynamic()
+		this.applyFiltersToQuery(query, filters)
+		// .then((result) => {
+		// 	return result[0].count
+		// })
+		return query.then((result) => {
+			return result[0].count
+		})
+	}
+	applyFiltersToQuery(
+		query: PgSelectBase<string, any, 'partial', Record<string, 'not-null'>, true, never, any, any>,
+		filters: IFiltersQuery[],
+	) {
+		for (let i = 0; i < filters.length; i++) {
+			const filter = filters[i]
+			const visibleFields = this.getFieldsArray()
+			if (visibleFields.includes(filter.name)) {
+				const field = this.table[filter.name]
+				const value = field instanceof PgTimestamp ? new Date(filter.value) : filter.value
+				switch (filter.op) {
+					case 'eq':
+						if (filter.value === 'null') {
+							query.where(isNull(field))
+						} else {
+							query.where(eq(field, value))
+						}
+						break
+					case 'gt':
+						query.where(gt(field, value))
+						break
+					case 'gte':
+						query.where(gte(field, value))
+						break
+					case 'lt':
+						query.where(lt(field, value))
+						break
+					case 'lte':
+						query.where(lte(field, value))
+						break
+					case 'like':
+						query.where(like(field, String(value)))
+						break
+					case 'neq':
+						query.where(ne(field, value))
+						break
+
+					default:
+						break
+				}
+			}
+		}
 	}
 
-	public findAll(opt?: IOptionFindAll) {
+	public findAll(filters: IFiltersQuery[], opt?: IOptionFindAll) {
 		if (!opt) {
 			opt = NDEServiceDB.DEFAULT_FINDALL_OPT
 		}
-		const visibleFields = this.getVisibleFields()
+		const visibleFields = this.generateFieldsForQuery(true)
 		const offset = opt.perPage * (opt.page - 1)
 
-		return this.db.query[this.tableName].findMany({
-			limit: opt.perPage,
-			offset: offset,
-			columns: visibleFields,
-		}) as unknown as Promise<TRessouce[]>
+		const query = this.db.select(visibleFields).from(this.table).limit(opt.perPage).offset(offset).$dynamic()
+
+		this.applyFiltersToQuery(query, filters)
+		return query as unknown as Promise<TRessouce[]>
 	}
 
 	async findOne(id: number, opt?: any) {
-		const visibleFields = this.getVisibleFields(false)
+		const visibleFields = this.generateFieldsForQuery(false)
 		// 	if (opt && opt.with) {
 		// 		for (const key in opt.with) {
 		// 			if (Object.prototype.hasOwnProperty.call(opt.with, key)) {

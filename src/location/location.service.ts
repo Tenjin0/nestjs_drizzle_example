@@ -20,6 +20,5 @@ export class LocationService extends NDEServiceDB<TLocation, CreateLocationDto, 
 
 	public create(createLocationDto: CreateLocationDto) {
 		return super.create(createLocationDto)
-		// return this.db.insert(locationTable).values(createLocationDto) as unknown as Promise<typeof locationTable>
 	}
 }

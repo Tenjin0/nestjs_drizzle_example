@@ -92,6 +92,13 @@
       "when": 1747089206252,
       "tag": "0012_devices_last_connection",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1747169359858,
+      "tag": "0013_change_timestamps",
+      "breakpoints": true
     }
   ]
 }
