@@ -1,6 +1,6 @@
 import { DrizzleDB } from '../../db/types/drizzle'
 import { AnyPgTable, PgTable } from 'drizzle-orm/pg-core/table'
-import { and, eq, getTableColumns, isNull } from 'drizzle-orm'
+import { and, count, eq, isNull } from 'drizzle-orm'
 import { ETable } from '../enums/table.enum'
 import { NotFoundException } from '@nestjs/common'
 import { TUser } from '../../db/schema/users'
@@ -42,10 +42,19 @@ export interface IFindOneOpt {
 	with: { [key: string]: IJoinTable }
 }
 
+export interface IOptionFindAll {
+	page: number
+	perPage: number
+}
+
 export type TRessouce = TUser | TLocation | TDevice
 
 // export type DBTable = PgTableWithColumns<NDETable>
-export class NDEServiceDB<TRessouce, CreateRessouceDto extends object, UpdateLocationDto extends object> {
+export class NDEServiceDB<TRessouce, CreateRessourceDto extends object, UpdateLocationDto extends object> {
+	static DEFAULT_FINDALL_OPT: IOptionFindAll = {
+		page: 1,
+		perPage: 10,
+	}
 	public exludedFields: string[] = []
 	protected tableName: string
 	protected table: AnyPgTable
@@ -104,7 +113,7 @@ export class NDEServiceDB<TRessouce, CreateRessouceDto extends object, UpdateLoc
 		}
 		return visibleFields
 	}
-	public create(createLocationDto: CreateRessouceDto) {
+	public create(createLocationDto: CreateRessourceDto) {
 		// console.log(this.db.query.locationTable)
 		return this.db
 			.insert(this.table)
@@ -112,9 +121,26 @@ export class NDEServiceDB<TRessouce, CreateRessouceDto extends object, UpdateLoc
 			.returning() as unknown as Promise<TRessouce>
 	}
 
-	public findAll() {
+	public count() {
+		return this.db
+			.select({ count: count() })
+			.from(this.table)
+			.limit(1)
+			.then((result) => {
+				return result[0].count
+			})
+	}
+
+	public findAll(opt?: IOptionFindAll) {
+		if (!opt) {
+			opt = NDEServiceDB.DEFAULT_FINDALL_OPT
+		}
 		const visibleFields = this.getVisibleFields()
+		const offset = opt.perPage * (opt.page - 1)
+
 		return this.db.query[this.tableName].findMany({
+			limit: opt.perPage,
+			offset: offset,
 			columns: visibleFields,
 		}) as unknown as Promise<TRessouce[]>
 	}
@@ -172,8 +198,8 @@ export class NDEServiceDB<TRessouce, CreateRessouceDto extends object, UpdateLoc
 			.set(updateLocationDto)
 			.where(eq(this.table['id'], id))
 			.returning({ id: this.table['id'], updated_at: this.table['updatedAt'] }) as unknown as Promise<
-				Partial<TRessouce> & NDETableUpdate
-			>
+			Partial<TRessouce> & NDETableUpdate
+		>
 	}
 
 	public remove(id: number) {
@@ -182,7 +208,7 @@ export class NDEServiceDB<TRessouce, CreateRessouceDto extends object, UpdateLoc
 			.set({ deletedAt: new Date() })
 			.where(and(eq(this.table['id'], id), isNull(this.table['deletedAt'])))
 			.returning({ id: this.table['id'], deleted_at: this.table['deletedAt'] }) as unknown as Promise<
-				Partial<TRessouce> & NDETableDelete
-			>
+			Partial<TRessouce> & NDETableDelete
+		>
 	}
 }

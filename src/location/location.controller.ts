@@ -3,10 +3,14 @@ import { LocationService } from './location.service'
 import { CreateLocationDto, createLocationSchema } from './dto/create-location.dto'
 import { UpdateLocationDto, updateLocationSchema } from './dto/update-location.dto'
 import { ZodValidationPipe } from '../common/pipes/zod_validation.pipe'
+import { controllerNDE } from '../common/abstracts/controller.class'
+import { TLocation } from '../db/schema/locations'
 
 @Controller('locations')
-export class LocationController {
-	constructor(private readonly locationService: LocationService) {}
+export class LocationController extends controllerNDE<TLocation, CreateLocationDto, UpdateLocationDto>{
+	constructor(private readonly locationService: LocationService) {
+		super(locationService)
+	}
 
 	@UsePipes(new ZodValidationPipe(createLocationSchema))
 	@Post()
@@ -14,24 +18,9 @@ export class LocationController {
 		return this.locationService.create(createLocationDto)
 	}
 
-	@Get()
-	findAll() {
-		return this.locationService.findAll()
-	}
-
-	@Get(':id')
-	findOne(@Param('id') id: string) {
-		return this.locationService.findOne(+id)
-	}
-
 	@UsePipes(new ZodValidationPipe(updateLocationSchema))
 	@Patch(':id')
 	update(@Param('id') id: string, @Body() updateLocationDto: UpdateLocationDto) {
 		return this.locationService.update(+id, updateLocationDto)
-	}
-
-	@Delete(':id')
-	remove(@Param('id') id: string) {
-		return this.locationService.remove(+id)
 	}
 }
